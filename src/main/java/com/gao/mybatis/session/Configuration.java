@@ -2,11 +2,22 @@ package com.gao.mybatis.session;
 
 import com.gao.mybatis.binding.MapperRegistry;
 import com.gao.mybatis.datasource.druid.DruidDataSourceFactory;
+import com.gao.mybatis.datasource.pooled.PooledDataSourceFactory;
+import com.gao.mybatis.datasource.unpooled.UnpooledDataSourceFactory;
+import com.gao.mybatis.executor.Executor;
+import com.gao.mybatis.executor.SimpleExecutor;
+import com.gao.mybatis.executor.resultset.DefaultResultSetHandler;
+import com.gao.mybatis.executor.resultset.ResultSetHandler;
+import com.gao.mybatis.executor.statement.PreparedStatementHandler;
+import com.gao.mybatis.executor.statement.StatementHandler;
+import com.gao.mybatis.mapping.BoundSql;
 import com.gao.mybatis.mapping.Environment;
 import com.gao.mybatis.mapping.MappedStatement;
+import com.gao.mybatis.transaction.Transaction;
 import com.gao.mybatis.transaction.jdbc.JdbcTransactionFactory;
 import com.gao.mybatis.type.TypeAliasRegistry;
 
+import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +34,8 @@ public class Configuration {
     public Configuration() {
         typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
         typeAliasRegistry.registerAlias("DRUID", DruidDataSourceFactory.class);
+        typeAliasRegistry.registerAlias("UNPOOLED", UnpooledDataSourceFactory.class);
+        typeAliasRegistry.registerAlias("POOLED", PooledDataSourceFactory.class);
     }
 
     public <T> T getMapper(Class<T> mapperClass, SqlSession sqlSession) {
@@ -51,5 +64,17 @@ public class Configuration {
 
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    public Executor newExecutor(Transaction transaction) {
+        return new SimpleExecutor(this, transaction);
+    }
+
+    public StatementHandler newStatementHandler(Executor executor, MappedStatement ms, Object parameter, ResultHandler resultHandler, BoundSql boundSql) {
+        return new PreparedStatementHandler(executor, ms, parameter, resultHandler, boundSql);
+    }
+
+    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
+        return new DefaultResultSetHandler(executor, mappedStatement, boundSql);
     }
 }

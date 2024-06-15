@@ -1,5 +1,6 @@
 package com.gao.mybatis.session.defaults;
 
+import com.gao.mybatis.executor.Executor;
 import com.gao.mybatis.mapping.BoundSql;
 import com.gao.mybatis.mapping.Environment;
 import com.gao.mybatis.mapping.MappedStatement;
@@ -13,10 +14,13 @@ import java.util.List;
 
 public class DefaultSqlSession implements SqlSession {
 
-    private final Configuration configuration;
+    private  Configuration configuration;
+    private Executor executor;
 
-    public DefaultSqlSession(Configuration configuration) {
+    public DefaultSqlSession(Configuration configuration, Executor executor) {
         this.configuration = configuration;
+        this.executor = executor;
+
     }
 
     public <T> T selectOne(String statementName) {
@@ -27,7 +31,7 @@ public class DefaultSqlSession implements SqlSession {
     public <T> T selectOne(String statementName, Object parameter) {
         try {
             MappedStatement mappedStatement = configuration.getMappedStatement(statementName);
-            Environment environment = configuration.getEnvironment();
+            /*Environment environment = configuration.getEnvironment();
 
             BoundSql boundSql = mappedStatement.getBoundSql();
             Connection connection = environment.getDataSource().getConnection();
@@ -36,6 +40,8 @@ public class DefaultSqlSession implements SqlSession {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             List<T> objList = result2Obj(resultSet, Class.forName(boundSql.getResultType()));
+            return objList.get(0);*/
+            List<T> objList = executor.query(mappedStatement, parameter, Executor.NO_RESULT_HANDLER, mappedStatement.getBoundSql());
             return objList.get(0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,36 +49,7 @@ public class DefaultSqlSession implements SqlSession {
         }
     }
 
-    public <T> List<T> result2Obj(ResultSet resultSet, Class<?> clazz) {
-        ArrayList<T> arrayList = new ArrayList<>();
-        try {
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int count = metaData.getColumnCount();
-            while (resultSet.next()) {
-                T o = (T)clazz.newInstance();
-                for (int i = 1; i <= count; i++) {
-                    Object value = resultSet.getObject(i);
-                    String columnName = metaData.getColumnName(i);
-                    String setMethod = "set" + columnName.substring(0, 1).toUpperCase() + columnName.substring(1);
 
-                    Method method;
-                    if (value != null) {
-                        if (value instanceof Timestamp) {
-                            method = clazz.getMethod(setMethod, java.util.Date.class);
-                        } else {
-                            method = clazz.getMethod(setMethod, value.getClass());
-                        }
-                        method.invoke(o, value);
-                    }
-                }
-                arrayList.add(o);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return arrayList;
-    }
 
     @Override
     public <T> T getMapper(Class<T> mapperClass) {
