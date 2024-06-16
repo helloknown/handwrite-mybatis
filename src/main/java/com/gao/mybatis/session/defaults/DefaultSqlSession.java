@@ -41,7 +41,7 @@ public class DefaultSqlSession implements SqlSession {
 
             List<T> objList = result2Obj(resultSet, Class.forName(boundSql.getResultType()));
             return objList.get(0);*/
-            List<T> objList = executor.query(mappedStatement, parameter, Executor.NO_RESULT_HANDLER, mappedStatement.getBoundSql());
+            List<T> objList = executor.query(mappedStatement, parameter, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
             return objList.get(0);
         } catch (Exception e) {
             e.printStackTrace();

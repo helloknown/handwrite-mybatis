@@ -17,11 +17,9 @@ import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
 
 import javax.sql.DataSource;
-import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class XMLConfigBuilder extends BaseBuilder {
 
@@ -84,8 +82,11 @@ public class XMLConfigBuilder extends BaseBuilder {
         for (Element e : elementList) {
             // 读取到配置文件中的 mapper.xml 文件路径
             String resource = e.attributeValue("resource");
-            Reader reader = Resources.getResourceAsReader(resource);
-            // 读取 mapper.xml 内容
+            InputStream inputStream = Resources.getResourceAsStream(resource);
+            // 在for循环里每个mapper都重新new一个XMLMapperBuilder，来解析
+            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource);
+            mapperParser.parse();
+            /*// 读取 mapper.xml 内容
             SAXReader saxReader = new SAXReader();
             Document document = saxReader.read(new InputSource(reader));
             Element root = document.getRootElement();
@@ -120,7 +121,7 @@ public class XMLConfigBuilder extends BaseBuilder {
                 configuration.addMappedStatement(mappedStatement);
             }
 
-            configuration.addMapper(Resources.classForName(namespace));
+            configuration.addMapper(Resources.classForName(namespace));*/
         }
     }
 }
