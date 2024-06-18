@@ -6,6 +6,7 @@ import com.gao.mybatis.datasource.pooled.PooledDataSourceFactory;
 import com.gao.mybatis.datasource.unpooled.UnpooledDataSourceFactory;
 import com.gao.mybatis.executor.Executor;
 import com.gao.mybatis.executor.SimpleExecutor;
+import com.gao.mybatis.executor.parameter.ParameterHandler;
 import com.gao.mybatis.executor.resultset.DefaultResultSetHandler;
 import com.gao.mybatis.executor.resultset.ResultSetHandler;
 import com.gao.mybatis.executor.statement.PreparedStatementHandler;
@@ -18,11 +19,13 @@ import com.gao.mybatis.reflection.factory.DefaultObjectFactory;
 import com.gao.mybatis.reflection.factory.ObjectFactory;
 import com.gao.mybatis.reflection.wrapper.DefaultObjectWrapperFactory;
 import com.gao.mybatis.reflection.wrapper.ObjectWrapperFactory;
+import com.gao.mybatis.scripting.LanguageDriver;
 import com.gao.mybatis.scripting.LanguageDriverRegistry;
 import com.gao.mybatis.scripting.xmltags.XMLLanguageDriver;
 import com.gao.mybatis.transaction.Transaction;
 import com.gao.mybatis.transaction.jdbc.JdbcTransactionFactory;
 import com.gao.mybatis.type.TypeAliasRegistry;
+import com.gao.mybatis.type.TypeHandlerRegistry;
 
 import java.sql.PreparedStatement;
 import java.util.HashMap;
@@ -39,6 +42,8 @@ public class Configuration {
     protected final Map<String, MappedStatement> mappedStatements = new HashMap<>();
 
     protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+    // 类型处理器注册机
+    protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
 
     protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
@@ -77,6 +82,11 @@ public class Configuration {
 
     public TypeAliasRegistry getTypeAliasRegistry() {
         return typeAliasRegistry;
+    }
+
+    // 类型处理器注册机
+    public TypeHandlerRegistry getTypeHandlerRegistry() {
+        return typeHandlerRegistry;
     }
 
     public Environment getEnvironment() {
@@ -118,5 +128,16 @@ public class Configuration {
 
     public LanguageDriverRegistry getLanguageRegistry() {
         return languageRegistry;
+    }
+
+    public LanguageDriver getDefaultScriptingLanguageInstance() {
+        return languageRegistry.getDefaultDriver();
+    }
+
+    public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
+        // 创建参数处理器
+        ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
+        // 插件的一些参数，也是在这里处理，暂时不添加这部分内容 interceptorChain.pluginAll(parameterHandler);
+        return parameterHandler;
     }
 }

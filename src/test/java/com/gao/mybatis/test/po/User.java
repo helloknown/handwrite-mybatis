@@ -7,8 +7,23 @@ public class User {
     private Long id;
     public String userId;          // 用户ID
     private String userHead;        // 头像
+    private String name;
+    private String address;         // 地址
     private Date createTime;        // 创建时间
     private Date updateTime;        // 更新时间
+
+    public User() {
+    }
+
+    public User(Long id) {
+        this.id = id;
+    }
+
+    public User(Long id, String userId) {
+        this.id = id;
+        this.userId = userId;
+    }
+
 
     public Long getId() {
         return id;
@@ -32,6 +47,22 @@ public class User {
 
     public void setUserHead(String userHead) {
         this.userHead = userHead;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public Date getCreateTime() {

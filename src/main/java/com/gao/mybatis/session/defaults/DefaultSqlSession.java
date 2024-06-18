@@ -1,11 +1,14 @@
 package com.gao.mybatis.session.defaults;
 
+import cn.hutool.json.JSONUtil;
 import com.gao.mybatis.executor.Executor;
 import com.gao.mybatis.mapping.BoundSql;
 import com.gao.mybatis.mapping.Environment;
 import com.gao.mybatis.mapping.MappedStatement;
 import com.gao.mybatis.session.Configuration;
 import com.gao.mybatis.session.SqlSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.sql.*;
@@ -13,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultSqlSession implements SqlSession {
+
+    private Logger logger = LoggerFactory.getLogger(DefaultSqlSession.class);
 
     private  Configuration configuration;
     private Executor executor;
@@ -29,6 +34,7 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public <T> T selectOne(String statementName, Object parameter) {
+        logger.info("执行查询 statement：{} parameter：{}", statementName, JSONUtil.toJsonStr(parameter));
         try {
             MappedStatement mappedStatement = configuration.getMappedStatement(statementName);
             /*Environment environment = configuration.getEnvironment();

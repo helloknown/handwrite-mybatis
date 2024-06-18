@@ -1,6 +1,7 @@
 package com.gao.mybatis.executor.statement;
 
 import com.gao.mybatis.executor.Executor;
+import com.gao.mybatis.executor.parameter.ParameterHandler;
 import com.gao.mybatis.executor.resultset.ResultSetHandler;
 import com.gao.mybatis.mapping.BoundSql;
 import com.gao.mybatis.mapping.MappedStatement;
@@ -21,16 +22,19 @@ public abstract class BaseStatementHandler implements StatementHandler{
 
     protected final Object parameterObject;
     protected final ResultSetHandler resultSetHandler;
+    protected final ParameterHandler parameterHandler;
 
     protected BoundSql boundSql;
 
-    public BaseStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, ResultHandler resultHandler, BoundSql boundSql) {
+    public BaseStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject,
+                                ResultHandler resultHandler, BoundSql boundSql) {
         this.configuration = mappedStatement.getConfiguration();
         this.executor = executor;
         this.mappedStatement = mappedStatement;
         this.parameterObject = parameterObject;
         this.boundSql = boundSql;
         this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, boundSql);
+        this.parameterHandler = configuration.newParameterHandler(mappedStatement, parameterObject, boundSql);
     }
 
     @Override

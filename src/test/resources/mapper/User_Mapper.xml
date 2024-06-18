@@ -8,4 +8,9 @@
         where id = #{id}
     </select>
 
+    <select id="queryUserInfo" parameterType="com.gao.mybatis.test.po.User" resultType="com.gao.mybatis.test.po.User">
+        SELECT id, userId, userHead, address
+        FROM user
+        where id = #{id} and userId = #{userId}
+    </select>
 </mapper>

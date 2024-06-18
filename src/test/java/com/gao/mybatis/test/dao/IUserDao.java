@@ -4,7 +4,7 @@ import com.gao.mybatis.test.po.User;
 
 public interface IUserDao {
 
-    User queryUserInfoById(String id);
+    User queryUserInfoById(Long id);
 
-    Integer getUserAge(String uId);
+    User queryUserInfo(User req);
 }
