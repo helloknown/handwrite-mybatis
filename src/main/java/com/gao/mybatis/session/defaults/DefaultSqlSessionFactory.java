@@ -1,6 +1,5 @@
 package com.gao.mybatis.session.defaults;
 
-import com.gao.mybatis.binding.MapperRegistry;
 import com.gao.mybatis.executor.Executor;
 import com.gao.mybatis.mapping.Environment;
 import com.gao.mybatis.session.Configuration;
@@ -27,8 +26,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
             Environment environment = configuration.getEnvironment();
             TransactionFactory transactionFactory = environment.getTransactionFactory();
 //            transaction = transactionFactory.newTransaction(configuration.getEnvironment().getDataSource().getConnection());
-            transaction = transactionFactory.newTransaction(configuration.getEnvironment().getDataSource(),
-                    TransactionIsolationLevel.READ_COMMIT, true);
+            transaction = transactionFactory.newTransaction(configuration.getEnvironment().getDataSource(), TransactionIsolationLevel.READ_COMMIT, false);
             // 创建执行器
             Executor executor = configuration.newExecutor(transaction);
             // 创建 创建DefaultSqlSession
