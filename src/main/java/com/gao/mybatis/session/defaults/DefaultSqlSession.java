@@ -6,6 +6,7 @@ import com.gao.mybatis.mapping.BoundSql;
 import com.gao.mybatis.mapping.Environment;
 import com.gao.mybatis.mapping.MappedStatement;
 import com.gao.mybatis.session.Configuration;
+import com.gao.mybatis.session.RowBounds;
 import com.gao.mybatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +29,14 @@ public class DefaultSqlSession implements SqlSession {
 
     }
 
-    public <T> T selectOne(String statementName) {
-        return (T) ("你被代理了！" + statementName);
+    @Override
+    public <T> T selectOne(String statement) {
+        return this.selectOne(statement, null);
     }
 
     @Override
     public <T> T selectOne(String statementName, Object parameter) {
-        logger.info("执行查询 statement：{} parameter：{}", statementName, JSONUtil.toJsonStr(parameter));
+        logger.info("执行查询 statement：{} parameter：{}", statementName, parameter);
         try {
             MappedStatement mappedStatement = configuration.getMappedStatement(statementName);
             /*Environment environment = configuration.getEnvironment();
@@ -47,7 +49,7 @@ public class DefaultSqlSession implements SqlSession {
 
             List<T> objList = result2Obj(resultSet, Class.forName(boundSql.getResultType()));
             return objList.get(0);*/
-            List<T> objList = executor.query(mappedStatement, parameter, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
+            List<T> objList = executor.query(mappedStatement, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
             return objList.get(0);
         } catch (Exception e) {
             e.printStackTrace();

@@ -4,5 +4,5 @@ import java.sql.ResultSet;
 
 public interface ResultHandler {
 
-    void handleResult();
+    void handleResult(ResultContext context);
 }

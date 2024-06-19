@@ -4,6 +4,7 @@ import com.gao.mybatis.executor.Executor;
 import com.gao.mybatis.mapping.BoundSql;
 import com.gao.mybatis.mapping.MappedStatement;
 import com.gao.mybatis.session.ResultHandler;
+import com.gao.mybatis.session.RowBounds;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,8 +15,8 @@ import java.util.List;
 
 public class PreparedStatementHandler extends BaseStatementHandler{
 
-    public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, ResultHandler resultHandler, BoundSql boundSql) {
-        super(executor, mappedStatement, parameterObject, resultHandler, boundSql);
+    public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, ResultHandler resultHandler, RowBounds rowBounds, BoundSql boundSql) {
+        super(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
     }
 
     @Override
@@ -35,6 +36,6 @@ public class PreparedStatementHandler extends BaseStatementHandler{
     public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
         PreparedStatement preparedStatement = (PreparedStatement) statement;
         preparedStatement.execute();
-        return resultSetHandler.handleResultSet(preparedStatement);
+        return resultSetHandler.<E>handleResultSet(preparedStatement);
     }
 }

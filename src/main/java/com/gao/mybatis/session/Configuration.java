@@ -101,16 +101,20 @@ public class Configuration {
         return databaseId;
     }
 
+    public ObjectFactory getObjectFactory() {
+        return objectFactory;
+    }
+
     public Executor newExecutor(Transaction transaction) {
         return new SimpleExecutor(this, transaction);
     }
 
-    public StatementHandler newStatementHandler(Executor executor, MappedStatement ms, Object parameter, ResultHandler resultHandler, BoundSql boundSql) {
-        return new PreparedStatementHandler(executor, ms, parameter, resultHandler, boundSql);
+    public StatementHandler newStatementHandler(Executor executor, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+        return new PreparedStatementHandler(executor, ms, parameter, resultHandler, rowBounds, boundSql);
     }
 
-    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
-        return new DefaultResultSetHandler(executor, mappedStatement, boundSql);
+    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement,RowBounds rowBounds,ResultHandler resultHandler, BoundSql boundSql) {
+        return new DefaultResultSetHandler(executor, mappedStatement, resultHandler, rowBounds, boundSql);
     }
 
     // 创建元对象

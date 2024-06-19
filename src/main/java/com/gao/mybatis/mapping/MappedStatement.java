@@ -3,7 +3,7 @@ package com.gao.mybatis.mapping;
 import com.gao.mybatis.scripting.LanguageDriver;
 import com.gao.mybatis.session.Configuration;
 
-import java.util.Map;
+import java.util.List;
 
 public class MappedStatement {
 
@@ -13,6 +13,7 @@ public class MappedStatement {
     private SqlSource sqlSource;
     Class<?> resultType;
     private LanguageDriver lang;
+    private List<ResultMap> resultMaps;
 
     public MappedStatement() {
     }
@@ -36,6 +37,15 @@ public class MappedStatement {
             assert mappedStatement.configuration != null;
             assert mappedStatement.id != null;
             return mappedStatement;
+        }
+
+        public String id() {
+            return mappedStatement.id;
+        }
+
+        public Builder resultMaps(List<ResultMap> resultMaps) {
+            mappedStatement.resultMaps = resultMaps;
+            return this;
         }
     }
 
@@ -73,5 +83,9 @@ public class MappedStatement {
 
     public LanguageDriver getLang() {
         return lang;
+    }
+
+    public List<ResultMap> getResultMaps() {
+        return resultMaps;
     }
 }
