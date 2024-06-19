@@ -11,9 +11,7 @@ import com.gao.mybatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
 
 public class DefaultSqlSession implements SqlSession {
@@ -35,29 +33,57 @@ public class DefaultSqlSession implements SqlSession {
     }
 
     @Override
-    public <T> T selectOne(String statementName, Object parameter) {
-        logger.info("执行查询 statement：{} parameter：{}", statementName, parameter);
-        try {
-            MappedStatement mappedStatement = configuration.getMappedStatement(statementName);
-            /*Environment environment = configuration.getEnvironment();
-
-            BoundSql boundSql = mappedStatement.getBoundSql();
-            Connection connection = environment.getDataSource().getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(boundSql.getSql());
-            preparedStatement.setLong(1, Long.parseLong(((Object[])parameter)[0].toString()));
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            List<T> objList = result2Obj(resultSet, Class.forName(boundSql.getResultType()));
-            return objList.get(0);*/
-            List<T> objList = executor.query(mappedStatement, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
-            return objList.get(0);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public <T> T selectOne(String statement, Object parameter) {
+        List<T> list = this.<T>selectList(statement, parameter);
+        if (list.size() == 1) {
+            return list.get(0);
+        } else if (list.size() > 1) {
+            throw new RuntimeException("Expected one result (or null) to be returned by selectOne(), but found: " + list.size());
+        } else {
             return null;
         }
     }
 
+    @Override
+    public <E> List<E> selectList(String statement, Object parameter) {
+        logger.info("执行查询 statement：{} parameter：{}", statement, parameter);
+        MappedStatement ms = configuration.getMappedStatement(statement);
+        try {
+            return executor.query(ms, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, ms.getSqlSource().getBoundSql(parameter));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    @Override
+    public int insert(String statement, Object parameter) {
+        // 在 Mybatis 中 insert 调用的是 update
+        return update(statement, parameter);
+    }
+
+    @Override
+    public int update(String statement, Object parameter) {
+        MappedStatement ms = configuration.getMappedStatement(statement);
+        try {
+            return executor.update(ms, parameter);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating database.  Cause: " + e);
+        }
+    }
+
+    @Override
+    public Object delete(String statement, Object parameter) {
+        return update(statement, parameter);
+    }
+
+    @Override
+    public void commit() {
+        try {
+            executor.commit(true);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error committing transaction.  Cause: " + e);
+        }
+    }
 
     @Override
     public <T> T getMapper(Class<T> mapperClass) {

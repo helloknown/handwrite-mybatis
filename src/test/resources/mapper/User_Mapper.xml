@@ -3,14 +3,35 @@
 <mapper namespace="com.gao.mybatis.test.dao.IUserDao">
 
     <select id="queryUserInfoById" parameterType="java.lang.Long" resultType="com.gao.mybatis.test.po.User">
-        SELECT id, userId, userHead, createTime
+        SELECT id, userId, name, userHead, createTime
         FROM user
         where id = #{id}
     </select>
 
     <select id="queryUserInfo" parameterType="com.gao.mybatis.test.po.User" resultType="com.gao.mybatis.test.po.User">
-        SELECT id, userId, userHead, address
+        SELECT id, userId, name, userHead, address
         FROM user
         where id = #{id} and userId = #{userId}
     </select>
+
+    <select id="queryUserInfoList" resultType="com.gao.mybatis.test.po.User">
+        SELECT id, userId, name, userHead
+        FROM user
+    </select>
+
+    <update id="updateUserInfo" parameterType="com.gao.mybatis.test.po.User">
+        UPDATE user
+        SET name = #{name}
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertUserInfo" parameterType="com.gao.mybatis.test.po.User">
+        INSERT INTO user
+            (id, userId, name, userHead, createTime, updateTime)
+        VALUES (#{id}, #{userId}, #{name}, #{userHead}, now(), now())
+    </insert>
+
+    <delete id="deleteUserInfoByUserId" parameterType="java.lang.String">
+        DELETE FROM user WHERE userId = #{userId}
+    </delete>
 </mapper>

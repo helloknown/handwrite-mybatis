@@ -34,21 +34,21 @@ public class JdbcTransaction implements Transaction {
 
     @Override
     public void commit() throws SQLException {
-        if (connection != null && connection.getAutoCommit()) {
+        if (connection != null && !connection.getAutoCommit()) {
             connection.commit();
         }
     }
 
     @Override
     public void rollback() throws SQLException {
-        if (connection != null && connection.getAutoCommit()) {
+        if (connection != null && !connection.getAutoCommit()) {
             connection.rollback();
         }
     }
 
     @Override
     public void close() throws SQLException {
-        if (connection != null && connection.getAutoCommit()) {
+        if (connection != null && !connection.getAutoCommit()) {
             connection.close();
         }
     }

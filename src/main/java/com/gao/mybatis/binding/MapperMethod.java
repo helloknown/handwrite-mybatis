@@ -21,16 +21,30 @@ public class MapperMethod {
     public Object execute(SqlSession sqlSession, Object[] args) {
         Object result = null;
         switch (sqlCommand.getSqlCommandType()) {
-            case INSERT:
-                break;
-            case DELETE:
-                break;
-            case UPDATE:
-                break;
-            case SELECT:
+            case INSERT: {
                 Object param = method.convertArgsToSqlCommandParam(args);
-                result = sqlSession.selectOne(sqlCommand.getName(), param);
+                result = sqlSession.insert(sqlCommand.getName(), param);
                 break;
+            }
+            case DELETE: {
+                Object param = method.convertArgsToSqlCommandParam(args);
+                result = sqlSession.delete(sqlCommand.getName(), param);
+                break;
+            }
+            case UPDATE:{
+                Object param = method.convertArgsToSqlCommandParam(args);
+                result = sqlSession.update(sqlCommand.getName(), param);
+                break;
+            }
+            case SELECT: {
+                Object param = method.convertArgsToSqlCommandParam(args);
+                if (method.returnsMany) {
+                    result = sqlSession.selectList(sqlCommand.getName(), param);
+                } else {
+                    result = sqlSession.selectOne(sqlCommand.getName(), param);
+                }
+                break;
+            }
             default:
                 throw new RuntimeException("Unknown execution method for: " + sqlCommand.getName());
         }
@@ -63,9 +77,13 @@ public class MapperMethod {
      */
     public static class MethodSignature {
 
+        private final boolean returnsMany;
+        private final Class<?> returnType;
         private final SortedMap<Integer, String> params;
 
         public MethodSignature(Configuration configuration, Method method) {
+            this.returnType = method.getReturnType();
+            this.returnsMany = (configuration.getObjectFactory().isCollection(this.returnType) || this.returnType.isArray());
             this.params = Collections.unmodifiableSortedMap(getParams(method));
         }
 
@@ -110,6 +128,10 @@ public class MapperMethod {
                 params.put(i, paramName);
             }
             return params;
+        }
+
+        public boolean returnsMany() {
+            return returnsMany;
         }
 
     }
